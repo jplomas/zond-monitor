@@ -1,0 +1,14 @@
+{
+  "name": "@theqrl/zond-monitor",
+  "version": "0.0.1",
+  "workspaces": [
+    "apps/*"
+  ],
+  "packageManager": "npm@9.6.5",
+  "scripts": {
+    "start": "turbo run start"
+  },
+  "devDependencies": {
+    "turbo": "^1.10.16"
+  }
+}
