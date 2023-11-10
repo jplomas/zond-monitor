@@ -1,5 +1,7 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue";
+
+// setup reactive vars
 const percentR = ref(0);
 const connected = ref(false);
 const percent = ref(0);
@@ -8,17 +10,33 @@ const api = reactive({
     head_slot: null,
     connection: false,
   },
+  size: {
+    success: false,
+    beacon: null,
+    gzond: null,
+  }
 });
+
+// setup timers
 let timer = null;
-async function getApi() {
+let sizeTimer = null;
+
+async function getSync() {
   const status = await fetch("http://localhost:3001");
   const apiData = await status.json();
   // console.log(apiData);
   return apiData;
 }
+async function getSize() {
+  const size = await fetch("http://localhost:3001/size");
+  const apiData = await size.json();
+  console.log(apiData);
+  return apiData;
+}
 onMounted(async (instance) => {
-  const getFromApi = async () => {
-    const apiData = await getApi();
+  // get sync state
+  const getSyncStatus = async () => {
+    const apiData = await getSync();
     percent.value =
       Math.round(
         (parseInt(await apiData.head_slot, 10) /
@@ -35,18 +53,45 @@ onMounted(async (instance) => {
       connected.value = false
     };
   };
+
+  // get size status
+  const getSizeStatus = async () => {
+    const sizeData = await getSize();
+    api.size = await sizeData;
+  }
+
+  // sync status timer
   timer = setInterval(async () => {
     try {
-      getFromApi();
+      getSyncStatus();
     } catch (e) {
       connected.value = false;
     }
   }, 10000);
+
+  // size timer
+  sizeTimer = setInterval(async () => {
+    try {
+      getSizeStatus();
+    } catch (e) {
+      // TODO: display if unable to get sizes
+    }
+  }, 10000);
+
+  // get sync state on launch
   try {
-    getFromApi();
+    getSyncStatus();
   } catch (e) {
     connected.value = false;
   }
+
+  // get size state on launch
+  try {
+    getSizeStatus();
+  } catch (e) {
+    // TODO: display if unable to get sizes
+  }
+
 });
 </script>
 
@@ -56,6 +101,25 @@ onMounted(async (instance) => {
       <h2>Zond Monitor</h2>
       <h3>Test Software</h3>
     </hgroup>
+    <article>
+      <header>Disk space</header>
+      <table>
+        <thead>
+          <th>Beacondata</th>
+          <th>Gzonddata</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              {{ api.size.beacon }}
+            </td>
+            <td>
+              {{ api.size.gzond }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
     <article v-if="connected">
       <header>Sync Progress</header>
       {{ percent }} %
