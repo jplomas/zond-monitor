@@ -101,7 +101,7 @@ onMounted(async (instance) => {
       <h2>Zond Monitor</h2>
       <h3>Test Software</h3>
     </hgroup>
-    <article>
+    <article v-if="api.size.success">
       <header>Disk space</header>
       <table>
         <thead>
@@ -119,6 +119,12 @@ onMounted(async (instance) => {
           </tr>
         </tbody>
       </table>
+    </article>
+    <article v-if="!api.size.success">
+      <header>⚠️ Chain files not found</header>
+      <p>
+        <small>Cannot find any chain files at paths in config file</small>
+      </p>
     </article>
     <article v-if="connected">
       <header>Sync Progress</header>
@@ -166,4 +172,5 @@ onMounted(async (instance) => {
   to {
     -webkit-transform: rotate(360deg);
   }
-}</style>
+}
+</style>
