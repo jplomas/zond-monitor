@@ -34,8 +34,10 @@ router.get('/', async (req, res) => {
 
 router.get('/size', async (req, res) => {
   try {
-    const sizeB = await du('../../../beacondata/');
-    const sizeG = await du('../../../gzonddata/');
+    const bd = process.env.BEACONDATA_PATH || '../../../beacondata/';
+    const gd = process.env.GZONDDATA_PATH || '../../../gzonddata/';
+    const sizeB = await du(bd);
+    const sizeG = await du(gd);
     console.log(`The size of beacondata is: ${formatBytes(sizeB)}`);
     console.log(`The size of gzonddata is: ${formatBytes(sizeG)}`);
     res.setHeader('Content-Type', 'application/json');
